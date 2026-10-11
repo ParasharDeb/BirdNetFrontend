@@ -1,26 +1,86 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/*
+ * Landing "stage": the hero is laid out on the 871 x 489 px reference canvas.
+ * Inside `.stage-scope`, Tailwind's spacing unit (--spacing) is one design pixel:
+ *  - on landscape screens >= 768px it scales so the whole canvas fits the viewport;
+ *  - on phones / portrait tablets it is a plain 1px and the layout reflows (non-`stage:` classes).
+ * So `w-181` means "181 px of the reference", whatever the viewport.
+ */
+@custom-variant stage (@media (min-width: 768px) and (min-aspect-ratio: 6/5));
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-inter);
+  --font-serif: var(--font-display-serif);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+:root {
+  --frame: #a9c5da;
+  --sky: #c5dce4;
+  --ink: #3c4f5d;
+  --ink-muted: #6f8796;
+}
+
+.stage-scope {
+  --spacing: 1px;
+}
+
+@media (min-width: 768px) and (min-aspect-ratio: 6/5) {
+  .stage-scope {
+    --spacing: min(calc(100vw / 871), calc(100svh / 489));
   }
 }
 
+/* Design-pixel helpers for properties Tailwind does not tie to --spacing. */
+@utility fs-* {
+  font-size: calc(var(--spacing) * --value(number));
+}
+
+@utility lh-* {
+  line-height: calc(var(--spacing) * --value(number));
+}
+
+@utility r-* {
+  border-radius: calc(var(--spacing) * --value(number));
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--frame);
+  color: var(--ink);
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  overflow-x: hidden;
+}
+
+.hero-backdrop {
+  background:
+    radial-gradient(
+      ellipse 34% 42% at 50% 100%,
+      rgb(226 242 250 / 0.85) 0%,
+      rgb(214 235 245 / 0.45) 45%,
+      transparent 100%
+    ),
+    linear-gradient(
+      180deg,
+      #c5dce4 0%,
+      #c5dce4 36%,
+      #b2ccd8 51%,
+      #93b3c2 72%,
+      #7ea2b2 86%,
+      #6c91a4 100%
+    );
+}
+
+.glass {
+  background: linear-gradient(140deg, rgb(255 255 255 / 0.26), rgb(255 255 255 / 0.08));
+  border: 1px solid rgb(255 255 255 / 0.42);
+  backdrop-filter: blur(calc(var(--spacing) * 14)) saturate(1.1);
+  -webkit-backdrop-filter: blur(calc(var(--spacing) * 14)) saturate(1.1);
+  box-shadow: 0 calc(var(--spacing) * 8) calc(var(--spacing) * 24) rgb(40 80 110 / 0.12);
+}
+
+.serif-ghost {
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.62) 0%, rgb(255 255 255 / 0.18) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
