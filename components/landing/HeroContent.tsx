@@ -19,7 +19,7 @@ export function HeroContent() {
 
       <div className="mt-28 flex items-center gap-10 stage:mt-26 stage:ml-27 stage:gap-7">
         <Link
-          href="#solutions"
+          href="/how-we-built-it"
           className="group flex h-52 items-center gap-24 rounded-full bg-[linear-gradient(90deg,#0074fe_0%,#0383e5_55%,#088fd1_100%)] pr-8 pl-20 fs-15 text-white shadow-[0_6px_18px_rgb(0_110_230/0.28)] transition-[filter] hover:brightness-110 stage:h-32 stage:w-109 stage:justify-between stage:gap-0 stage:pr-6 stage:pl-11 stage:fs-8.5 stage:shadow-[0_calc(var(--spacing)*4)_calc(var(--spacing)*12)_rgb(0_110_230/0.25)]"
         >
           Our Solutions
@@ -28,7 +28,7 @@ export function HeroContent() {
           </span>
         </Link>
         <Link
-          href="#contact"
+          href="/about"
           className="flex h-52 items-center rounded-full bg-[#fffdfb] px-24 fs-15 text-[#2b3540] shadow-[0_4px_14px_rgb(40_80_110/0.1)] transition-colors hover:bg-white stage:h-31 stage:w-68 stage:justify-center stage:px-0 stage:fs-8.5"
         >
           Contact us

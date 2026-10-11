@@ -7,7 +7,13 @@ import { AnimatePresence, motion } from "framer-motion";
 
 type NavLink = { readonly label: string; readonly href: string };
 
-export function MobileMenu({ links }: { links: readonly NavLink[] }) {
+type Props = {
+  links: readonly NavLink[];
+  current: string;
+  login: NavLink;
+};
+
+export function MobileMenu({ links, current, login }: Props) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -35,25 +41,31 @@ export function MobileMenu({ links }: { links: readonly NavLink[] }) {
             className="absolute inset-x-0 top-52 rounded-[20px] border border-white/50 bg-white/70 p-8 shadow-lg backdrop-blur-xl"
           >
             <ul className="flex flex-col">
-              {links.map((link, i) => (
-                <li key={link.label}>
-                  <Link
-                    href={link.href}
-                    onClick={() => setOpen(false)}
-                    aria-current={i === 0 ? "page" : undefined}
-                    className="block rounded-[14px] px-14 py-11 text-[15px] text-[#3c4f5d] hover:bg-white/70"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
+              {links.map((link) => {
+                const active = link.href === current;
+                return (
+                  <li key={link.href}>
+                    <Link
+                      href={link.href}
+                      onClick={() => setOpen(false)}
+                      aria-current={active ? "page" : undefined}
+                      className={
+                        "block rounded-[14px] px-14 py-11 text-[15px] text-[#3c4f5d] hover:bg-white/70 " +
+                        (active ? "bg-white/60 font-medium" : "")
+                      }
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                );
+              })}
               <li className="p-6">
                 <Link
-                  href="#resources"
+                  href={login.href}
                   onClick={() => setOpen(false)}
                   className="block rounded-full bg-white py-11 text-center text-[15px] font-medium text-[#3c4f5d] shadow-sm"
                 >
-                  Resources
+                  {login.label}
                 </Link>
               </li>
             </ul>

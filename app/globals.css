@@ -70,6 +70,31 @@ body {
     );
 }
 
+/* Long, scrolling sub-pages: same palette as the hero, spread over the full page height. */
+.page-backdrop {
+  background:
+    radial-gradient(ellipse 60% 40% at 50% 0%, rgb(226 242 250 / 0.7), transparent 70%),
+    linear-gradient(180deg, #c5dce4 0%, #bcd5df 35%, #a9c6d4 75%, #93b3c2 100%);
+}
+
+/* Glass card for regular (non-stage) pages: plain px units. */
+.glass-panel {
+  background: linear-gradient(140deg, rgb(255 255 255 / 0.34), rgb(255 255 255 / 0.12));
+  border: 1px solid rgb(255 255 255 / 0.5);
+  backdrop-filter: blur(16px) saturate(1.1);
+  -webkit-backdrop-filter: blur(16px) saturate(1.1);
+  box-shadow: 0 10px 30px rgb(40 80 110 / 0.1);
+}
+
+/* GlassCursor hides the system cursor only once it is active (fine pointer, JS running). */
+html.glass-cursor-on,
+html.glass-cursor-on * {
+  cursor: none !important;
+}
+html.glass-cursor-on :is(input:not([type="checkbox"], [type="radio"], [type="submit"], [type="button"]), textarea, [contenteditable="true"]) {
+  cursor: text !important;
+}
+
 .glass {
   background: linear-gradient(140deg, rgb(255 255 255 / 0.26), rgb(255 255 255 / 0.08));
   border: 1px solid rgb(255 255 255 / 0.42);

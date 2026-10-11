@@ -24,7 +24,7 @@ export function HeroSection() {
     <section className="hero-backdrop relative isolate min-h-svh overflow-hidden stage:r-16">
       {/* Stage: 871 design px wide, at least 489 tall; taller viewports add room under the nav. */}
       <div className="relative mx-auto flex min-h-svh flex-col px-16 pt-16 pb-40 stage:block stage:h-[max(calc(var(--spacing)*489),100svh)] stage:min-h-0 stage:w-871 stage:p-0">
-        <Navbar />
+        <Navbar current="/" />
         {/* Scene: the reference composition, anchored to the bottom of the stage. */}
         <div className="contents stage:absolute stage:inset-x-0 stage:bottom-0 stage:block stage:h-489">
           <BackgroundTypography />

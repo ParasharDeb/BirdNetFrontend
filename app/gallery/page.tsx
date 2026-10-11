@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { GalleryView } from "@/components/gallery/GalleryView";
 
 export const metadata: Metadata = {
-  title: "Gallery — Blue Bird",
+  title: "Gallery",
   description: "Images stored in the Blue Bird S3 bucket.",
 };
 
