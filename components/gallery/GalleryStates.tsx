@@ -17,7 +17,7 @@ export function SkeletonGrid({ count }: { count: number }) {
   );
 }
 
-function StatePanel({
+export function StatePanel({
   icon,
   title,
   children,
@@ -38,7 +38,7 @@ function StatePanel({
   );
 }
 
-function RetryButton({ onClick, label }: { onClick: () => void; label: string }) {
+export function RetryButton({ onClick, label }: { onClick: () => void; label: string }) {
   return (
     <button
       type="button"

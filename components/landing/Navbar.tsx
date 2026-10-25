@@ -4,7 +4,7 @@ import { MobileMenu } from "./MobileMenu";
 export const navLinks = [
   { label: "home", href: "/" },
   { label: "about us", href: "/about" },
-  { label: "birds in the campus", href: "/birds" },
+  { label: "detections", href: "/detections" },
   { label: "how we built it", href: "/how-we-built-it" },
   { label: "set it up", href: "/setup" },
 ] as const;

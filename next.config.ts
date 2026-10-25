@@ -10,13 +10,25 @@ function galleryImagePatterns(): RemotePattern[] {
   const patterns: RemotePattern[] = [];
   const bucket = process.env.S3_BUCKET_NAME?.trim();
   const region = process.env.AWS_REGION?.trim();
+  const endpoint = process.env.S3_ENDPOINT?.trim();
   if (bucket && region) {
     const prefix = process.env.S3_IMAGE_PREFIX?.trim().replace(/^\/+|\/+$/g, "");
-    patterns.push({
-      protocol: "https",
-      hostname: `${bucket}.s3.${region}.amazonaws.com`,
-      pathname: prefix ? `/${prefix}/**` : "/**",
-    });
+    if (endpoint) {
+      // S3-compatible store (e.g. Supabase): path-style URLs, <endpoint>/<bucket>/<key>.
+      const url = new URL(endpoint);
+      const base = `${url.pathname.replace(/\/+$/, "")}/${bucket}`;
+      patterns.push({
+        protocol: "https",
+        hostname: url.hostname,
+        pathname: prefix ? `${base}/${prefix}/**` : `${base}/**`,
+      });
+    } else {
+      patterns.push({
+        protocol: "https",
+        hostname: `${bucket}.s3.${region}.amazonaws.com`,
+        pathname: prefix ? `/${prefix}/**` : "/**",
+      });
+    }
   }
   const publicBase = process.env.S3_PUBLIC_BASE_URL?.trim();
   if (publicBase) {

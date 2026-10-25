@@ -20,6 +20,8 @@ export type S3Config = {
   bucket: string;
   prefix: string;
   publicBaseUrl: string | null;
+  /** S3-compatible endpoint (e.g. Supabase Storage); null for Amazon S3. */
+  endpoint: string | null;
 };
 
 /** Reads configuration from server-only env vars. Returns null when the bucket is not configured. */
@@ -29,20 +31,25 @@ export function getS3Config(): S3Config | null {
   if (!region || !bucket) return null;
   const prefix = process.env.S3_IMAGE_PREFIX?.trim().replace(/^\/+/, "") ?? "";
   const publicBaseUrl = process.env.S3_PUBLIC_BASE_URL?.trim().replace(/\/+$/, "") || null;
-  return { region, bucket, prefix, publicBaseUrl };
+  const endpoint = process.env.S3_ENDPOINT?.trim().replace(/\/+$/, "") || null;
+  return { region, bucket, prefix, publicBaseUrl, endpoint };
 }
 
 let client: S3Client | null = null;
-let clientRegion: string | null = null;
+let clientKey: string | null = null;
 
 /**
  * Credentials resolve through the SDK default provider chain: AWS_ACCESS_KEY_ID /
  * AWS_SECRET_ACCESS_KEY env vars locally, or an IAM role / OIDC web identity when deployed.
  */
-function getClient(region: string): S3Client {
-  if (!client || clientRegion !== region) {
-    client = new S3Client({ region });
-    clientRegion = region;
+export function getClient(config: Pick<S3Config, "region" | "endpoint">): S3Client {
+  const key = `${config.region}|${config.endpoint ?? ""}`;
+  if (!client || clientKey !== key) {
+    // S3-compatible stores like Supabase need path-style URLs.
+    client = config.endpoint
+      ? new S3Client({ region: config.region, endpoint: config.endpoint, forcePathStyle: true })
+      : new S3Client({ region: config.region });
+    clientKey = key;
   }
   return client;
 }
@@ -52,11 +59,30 @@ export function imageContentType(key: string): string | null {
   return IMAGE_TYPES[ext] ?? null;
 }
 
+/** Public URL when S3_PUBLIC_BASE_URL is set, otherwise a presigned GET valid for PRESIGN_TTL_SECONDS. */
+export async function objectUrl(
+  config: S3Config,
+  key: string,
+  { downloadAs }: { downloadAs?: string } = {},
+): Promise<string> {
+  if (config.publicBaseUrl) {
+    return `${config.publicBaseUrl}/${key.split("/").map(encodeURIComponent).join("/")}`;
+  }
+  const command = new GetObjectCommand({
+    Bucket: config.bucket,
+    Key: key,
+    ResponseContentDisposition: downloadAs ? `attachment; filename="${downloadAs.replace(/"/g, "")}"` : undefined,
+  });
+  return getSignedUrl(getClient(config), command, {
+    expiresIn: PRESIGN_TTL_SECONDS,
+  });
+}
+
 export async function listImages(
   config: S3Config,
   { token, limit }: { token?: string; limit: number },
 ): Promise<{ images: GalleryImage[]; nextToken: string | null }> {
-  const s3 = getClient(config.region);
+  const s3 = getClient(config);
   const result = await s3.send(
     new ListObjectsV2Command({
       Bucket: config.bucket,
@@ -77,11 +103,7 @@ export async function listImages(
   const expiresAt = new Date(Date.now() + PRESIGN_TTL_SECONDS * 1000).toISOString();
   const images = await Promise.all(
     objects.map(async (obj): Promise<GalleryImage> => {
-      const url = config.publicBaseUrl
-        ? `${config.publicBaseUrl}/${obj.key.split("/").map(encodeURIComponent).join("/")}`
-        : await getSignedUrl(s3, new GetObjectCommand({ Bucket: config.bucket, Key: obj.key }), {
-            expiresIn: PRESIGN_TTL_SECONDS,
-          });
+      const url = await objectUrl(config, obj.key);
       return {
         key: obj.key,
         filename: obj.key.split("/").pop() ?? obj.key,
